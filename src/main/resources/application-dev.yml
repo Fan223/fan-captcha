@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: Captcha
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 124.222.xxx:8848
+        username: nacos
+        password: xxx
+  redis:
+    host: 124.222.xxx
+    port: 6379
+    password: xxx
+    database: 0
+logging:
+  level:
+    root: info
+  file:
+    name: all.log
