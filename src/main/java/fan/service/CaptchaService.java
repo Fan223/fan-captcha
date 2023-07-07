@@ -13,19 +13,21 @@ public interface CaptchaService {
     /**
      * 获取验证码
      *
+     * @param server 服务
      * @return {@link Response}
      * @author Fan
      * @since 2023/7/6 16:23
      */
-    Response getCaptcha();
+    Response getCaptcha(String server);
 
     /**
      * 校验验证码
      *
-     * @param captchaStr 验证码字符串
-     * @return {@link Response}
+     * @param token   token
+     * @param captcha 验证码
+     * @return {@link Response<Boolean>}
      * @author Fan
      * @since 2023/7/6 17:18
      */
-    Response verifyCaptcha(String captchaStr);
+    Response<Boolean> verifyCaptcha(String token, String captcha);
 }

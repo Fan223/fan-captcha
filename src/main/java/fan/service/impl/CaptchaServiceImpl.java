@@ -1,21 +1,17 @@
 package fan.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.code.kaptcha.Producer;
-import fan.core.exception.CommonException;
+import fan.captcha.CaptchaUtil;
 import fan.core.util.MapUtil;
+import fan.entity.ServerDO;
 import fan.lang.Response;
 import fan.redis.RedisUtil;
 import fan.service.CaptchaService;
-import org.apache.juli.logging.Log;
-import org.apache.juli.logging.LogFactory;
+import fan.dao.ServerDAO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Base64;
 import java.util.UUID;
 
 /**
@@ -27,50 +23,43 @@ import java.util.UUID;
 @Service
 public class CaptchaServiceImpl implements CaptchaService {
 
-    Log log = LogFactory.getLog(this.getClass());
-
     @Resource
     private Producer producer;
 
+    @Resource
+    private ServerDAO serverDAO;
+
     @Override
-    public Response getCaptcha() {
-        // 生成验证码字符串
-        String captchaStr = producer.createText();
-        String captchaImg;
-        try {
-            // 生成验证码图片
-            captchaImg = createKaptcha(captchaStr);
-        } catch (RuntimeException e) {
-            log.error(e.getMessage());
-            return Response.fail("获取验证码失败");
+    public Response getCaptcha(String server) {
+        ServerDO serverDO = serverDAO.selectOne(new LambdaQueryWrapper<ServerDO>().eq(ServerDO::getCode, server)
+                .eq(ServerDO::getFlag, "Y"));
+        if (null == serverDO) {
+            return Response.fail("服务器未注册", null);
         }
 
+        // 生成验证码字符串
+        String captcha = producer.createText();
+        // 生成验证码图片
+        String captchaImg = CaptchaUtil.getKaptcha(captcha);
         // 生成唯一标识
         String token = UUID.randomUUID().toString();
-        RedisUtil.set(token, captchaStr, 120);
-        return Response.success(MapUtil.builder().put("token", token).put("captchaStr", captchaStr)
-                .put("captchaImg", captchaImg).build());
+        // 存入 Redis, 有效期 120 秒
+        RedisUtil.set(token, captcha, 120);
+        return Response.success("获取验证码成功", MapUtil.builder("token", token)
+                .put("captcha", captcha).put("captchaImg", captchaImg).build());
     }
 
     @Override
-    public Response verifyCaptcha(String captchaStr) {
-        return null;
-    }
+    public Response<Boolean> verifyCaptcha(String token, String captcha) {
+        String verify = (String) RedisUtil.get(token);
+        RedisUtil.del(token);
 
-    public String createKaptcha(String captchaStr) {
-        // 创建图片验证码
-        BufferedImage bufferedImage = producer.createImage(captchaStr);
-
-        // 创建字节数组
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        // 写入图片字节数组
-        try {
-            ImageIO.write(bufferedImage, "jpg", byteArrayOutputStream);
-        } catch (IOException e) {
-            throw new CommonException(e.getMessage());
+        if (null == verify) {
+            return Response.fail("验证码已过期", false);
+        } else if (!verify.equals(captcha)) {
+            return Response.fail("验证码错误", false);
         }
 
-        // 转换为 base64, 生成图片验证码
-        return "data:image/jpg;base64," + Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());
+        return Response.success("验证成功", true);
     }
 }

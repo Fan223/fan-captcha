@@ -2,6 +2,7 @@ package fan.controller;
 
 import fan.lang.Response;
 import fan.service.CaptchaService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,18 +16,29 @@ import javax.annotation.Resource;
  * @since 2023/7/6 16:20
  */
 @RestController
+@Slf4j
 public class CaptchaController {
 
     @Resource
     private CaptchaService captchaService;
 
     @GetMapping("/getCaptcha")
-    public Response getCaptcha() {
-        return captchaService.getCaptcha();
+    public Response getCaptcha(String server) {
+        try {
+            return captchaService.getCaptcha(server);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Response.fail("获取验证码失败", null);
+        }
     }
 
     @PostMapping("/verifyCaptcha")
-    public Response verifyCaptcha(String captchaStr) {
-        return captchaService.verifyCaptcha(captchaStr);
+    public Response<Boolean> verifyCaptcha(String token, String captcha) {
+        try {
+            return captchaService.verifyCaptcha(token, captcha);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Response.fail("验证失败", false);
+        }
     }
 }
