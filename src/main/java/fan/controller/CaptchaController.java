@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * 验证码 Controller
@@ -23,7 +24,7 @@ public class CaptchaController {
     private CaptchaService captchaService;
 
     @GetMapping("/getCaptcha")
-    public Response getCaptcha(String server) {
+    public Response<Map<String, String>> getCaptcha(String server) {
         try {
             return captchaService.getCaptcha(server);
         } catch (Exception e) {

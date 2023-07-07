@@ -2,6 +2,8 @@ package fan.service;
 
 import fan.lang.Response;
 
+import java.util.Map;
+
 /**
  * 验证码接口
  *
@@ -14,11 +16,11 @@ public interface CaptchaService {
      * 获取验证码
      *
      * @param server 服务
-     * @return {@link Response}
+     * @return {@link Response<Map<String,String>>}
      * @author Fan
      * @since 2023/7/6 16:23
      */
-    Response getCaptcha(String server);
+    Response<Map<String, String>> getCaptcha(String server);
 
     /**
      * 校验验证码

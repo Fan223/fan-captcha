@@ -12,6 +12,7 @@ import fan.dao.ServerDAO;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -30,7 +31,7 @@ public class CaptchaServiceImpl implements CaptchaService {
     private ServerDAO serverDAO;
 
     @Override
-    public Response getCaptcha(String server) {
+    public Response<Map<String, String>> getCaptcha(String server) {
         ServerDO serverDO = serverDAO.selectOne(new LambdaQueryWrapper<ServerDO>().eq(ServerDO::getCode, server)
                 .eq(ServerDO::getFlag, "Y"));
         if (null == serverDO) {
@@ -46,7 +47,7 @@ public class CaptchaServiceImpl implements CaptchaService {
         // 存入 Redis, 有效期 120 秒
         RedisUtil.set(token, captcha, 120);
         return Response.success("获取验证码成功", MapUtil.builder("token", token)
-                .put("captcha", captcha).put("captchaImg", captchaImg).build());
+                .put("captchaImg", captchaImg).build());
     }
 
     @Override
