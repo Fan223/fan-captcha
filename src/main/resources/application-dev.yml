@@ -10,6 +10,7 @@ spring:
         server-addr: 124.222.xxx.xxx:8848
         username: nacos
         password: xxx
+        ip: 124.222.xxx.xxx
   datasource:
     druid:
       driver-class-name: com.p6spy.engine.spy.P6SpyDriver
