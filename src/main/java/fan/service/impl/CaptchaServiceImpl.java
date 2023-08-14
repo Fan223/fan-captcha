@@ -10,8 +10,8 @@ import fan.redis.RedisUtil;
 import fan.service.CaptchaService;
 import fan.dao.ServerDAO;
 import org.springframework.stereotype.Service;
+import jakarta.annotation.Resource;
 
-import javax.annotation.Resource;
 import java.util.Map;
 import java.util.UUID;
 

@@ -2,12 +2,12 @@ package fan.controller;
 
 import fan.lang.Response;
 import fan.service.CaptchaService;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.Map;
 
 /**
