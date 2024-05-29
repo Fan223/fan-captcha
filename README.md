@@ -1,4 +1,1 @@
 # Fan-Captcha
-
-one
-test
